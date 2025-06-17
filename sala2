@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escape Room - O Desafio das Chaves</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #000;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+#title {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#title h1 {
+    color: #FFD700;
+    font-size: 3em;
+    text-shadow: 3px 3px 0 #8B4513;
+    font-family: 'Arial Black', sans-serif;
+    -webkit-text-stroke: 2px #8B4513;
+}
+
+.game-button {
+    background: #FFB900;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    color: #4A2800;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px;
+    width: 200px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #8B4513;
+    transition: all 0.2s;
+    text-align: center;
+    border: 3px solid #8B4513;
+}
+
+.game-button:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #8B4513;
+    background: #FFD700;
+}
+
+#room {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background-image: url(imagens/mapa5.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.game-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#inventory {
+    background-color: rgba(139, 69, 19, 0.9);
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    border: 4px solid #FFB900;
+    background-image: url('images/wall-texture.png');
+    background-repeat: repeat;
+    background-size: 50px;
+}
+
+#inventory h2 {
+    margin-bottom: 10px;
+    color: #FFD700;
+    text-align: center;
+    text-shadow: 2px 2px 0 #8B4513;
+    font-family: 'Arial Black', sans-serif;
+}
+
+#inventory-items {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.item {
+    width: 60px;
+    height: 60px;
+    background-color: #FFB900;
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 0 #8B4513;
+}
+
+.item:hover {
+    transform: scale(1.1);
+}
+
+#message-box {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(139, 69, 19, 0.95);
+    padding: 15px 30px;
+    border-radius: 10px;
+    display: none;
+    text-align: center;
+    border: 3px solid #FFB900;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    max-width: 80%;
+    background-image: url('images/wall-texture.png');
+    background-repeat: repeat;
+    background-size: 50px;
+}
+
+.interactive {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.interactive:hover {
+    transform: scale(1.05);
+}
+
+.quadro {
+    width: 100px;
+    height: 100px;
+    border: 4px solid #FFB900;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background-color: rgba(139, 69, 19, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 0 #8B4513;
+    color: #FFD700;
+    text-shadow: 2px 2px 0 #8B4513;
+}
+
+.chave {
+    width: 80px;
+    height: 80px;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+    border: 3px solid #8B4513;
+    box-shadow: 0 4px 0 #8B4513;
+}
+
+.caminho {
+    padding: 15px 30px;
+    margin: 10px;
+    background-color: #FFB900;
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #4A2800;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #8B4513;
+    width: 250px;
+}
+
+.caminho:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #8B4513;
+    background: #FFD700;
+}
+
+.room-title {
+    color: #FFD700;
+    text-shadow: 2px 2px 0 #000;
+    font-size: 2.5em;
+    font-family: 'Arial Black', sans-serif;
+    -webkit-text-stroke: 1px #000;
+    margin: 0;
+    padding: 20px;
+}
+
+.message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    font-weight: bold;
+    max-width: 80%;
+    color: #FFD700;
+    z-index: 1000;
+}
+
+#dica {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px 30px;
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    font-weight: bold;
+    font-size: 1.2em;
+    max-width: 80%;
+    color: #FFD700;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#dica::before {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px;
+    border-style: solid;
+    border-color: #FFB900 transparent transparent transparent;
+}
+
+#dica.visible {
+    opacity: 1;
+}
+
+.chave-hotspot {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s;
+    z-index: 100;
+}
+
+.chave-hotspot:hover {
+    background-color: rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    transform: translate(-50%, -50%) scale(1.3);
+}
+
+/* Media queries para garantir que o jogo se ajuste bem em diferentes telas */
+@media (max-aspect-ratio: 16/9) {
+    #room {
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (min-aspect-ratio: 16/9) {
+    #room {
+        width: auto;
+        height: 100%;
+    }
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 768px) {
+    .room-title {
+        font-size: 1.8em;
+    }
+
+    .game-button {
+        font-size: 1em;
+        padding: 10px 20px;
+        width: 150px;
+    }
+
+    #dica {
+        font-size: 1em;
+        padding: 15px 20px;
+    }
+} 
+/* Fade out para a transição de saída */
+.fade-out {
+  animation: fadeOutAnimation 1s forwards;
+}
+
+@keyframes fadeOutAnimation {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Fade in para a transição de entrada */
+.fade-in {
+  animation: fadeInAnimation 1s forwards;
+}
+
+@keyframes fadeInAnimation {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Estilo do ícone de som */
+.som {
+    position: absolute; /* Fixa na tela */
+    top: 20px; /* Distância do topo */
+    right: 20px; /* Distância da direita */
+    cursor: pointer; /* Muda o cursor ao passar sobre */
+    width: 100px; /* Define a largura do ícone */
+    height: auto; /* Mantém a proporção da imagem */
+}
+
+.lampada1 {
+  margin-top: 12vh;
+  width: 100px;
+  height: auto;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 20;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+#modal, #fade {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#modal.show, #fade.show {
+  display: block;
+  opacity: 1;
+  pointer-events: all;
+}
+
+#modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  max-width: 90%;
+  min-height: 300px;
+  background-color: #ffd900;
+  border: 0.5rem solid rgb(255, 162, 0);
+  padding: 1.2rem;
+  border-radius: 2rem;
+  z-index: 10;
+  transition: 0.5s;
+}
+
+#fade {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9;
+  transition: 0.5s;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #625904;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.modal-text {
+  font-size: 5vh;
+  font-family: cursive;
+}
+
+#close-modal {
+  padding: 5px 10px;
+  border: 2px solid gold;
+  background-color: hsl(51, 100%, 77%);
+  border-radius: 30%;
+  font-weight: bold;
+}
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="room"></div>
+        <div id="dica"></div>
+    </div>
+
+    <div> 
+        <img id="iconeSom" src="imagens/icone_som.png" alt="som" class="som" onclick="tocarSom()">
+    </div>
+     <!--Tag DIV para inserir uma imagem que ao ter interação é ligada a uma função no java script--> 
+
+    <!--Tag AUDIO para puxar um arquivo de musica em mp3 --> 
+    <audio id="myAudio">
+        <source src="musica.mp3" type="audio/mpeg"> <!-- Fonte do áudio -->
+       Seu navegador não suporta áudio.   <!-- Mensagem caso não suporte -->
+    </audio>
+    
+
+     <img id="open-modal" src="./imagens/lampada2.png" alt="dica" class="som lampada1" />
+
+  <div id="fade"></div>
+  <div id="modal">
+    <div class="modal-header">
+      <p style="font-weight: bold;">Dica</p>
+      <button id="close-modal">x</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-text"></p>
+    </div>
+  </div>
+
+    <script src="game.js"></script>
+    <script>
+        class EscapeRoom {
+    constructor() {
+        this.inventory = [];
+        this.currentRoom = 'sala';
+        this.gameState = {
+            chaveEscolhida: '',
+            desafiosCompletos: 0,
+            somLigado: true,
+            dificuldade: 'normal'
+        };
+
+        this.somVitoria = new Audio('./sounds/magical_1.ogg');
+        this.musicaFundo = new Audio('./sounds/No More Magic.mp3');
+        this.somVitoria.volume = 1.0;
+        this.musicaFundo.volume = 0.5;
+        this.musicaFundo.loop = true;
+
+
+        this.init();
+    }
+
+    init() {
+        this.renderRoom();
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (this.currentRoom === 'opcoes') {
+                    this.voltarAoMenu();
+                }
+            }
+        });
+    }
+
+    renderRoom() {
+        const roomElement = document.getElementById('room');
+        roomElement.innerHTML = '';
+
+        switch (this.currentRoom) {
+            case 'start':
+                this.renderStartRoom();
+                break;
+            case 'opcoes':
+                this.renderOpcoesRoom();
+                break;
+            case 'sala':
+                this.renderSalaChaves();
+                break;
+            case 'final':
+                this.renderFinal();
+                break;
+        }
+    }
+
+    renderStartRoom() {
+        const roomElement = document.getElementById('room');
+        roomElement.innerHTML = `
+            <div style="position: absolute; width: 100%; height: 100%; display: flex; 
+                        flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <h1 style="color: #FFD700; font-size: 3em; text-shadow: 3px 3px 0 #8B4513; margin-bottom: 50px;">
+                    Escape Room
+                </h1>
+            </div>
+        `;
+    }
+
+    renderOpcoesRoom() {
+        const roomElement = document.getElementById('room');
+        roomElement.innerHTML = `
+            <div style="position: absolute; width: 100%; height: 100%; display: flex; 
+                        flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <h2 class="room-title">Opções</h2>
+                <div style="margin: 20px;">
+                    <div style="margin: 20px;">
+                        <label style="color: #FFD700; font-size: 1.2em; text-shadow: 1px 1px #8B4513;">Som:</label>
+                        <button class="game-button" style="width: 120px;" 
+                                onclick="game.toggleSom()">${this.gameState.somLigado ? 'Ligado' : 'Desligado'}</button>
+                    </div>
+                    <div style="margin: 20px;">
+                        <label style="color: #FFD700; font-size: 1.2em; text-shadow: 1px 1px #8B4513;">Dificuldade:</label>
+                        <button class="game-button" style="width: 120px;" 
+                                onclick="game.toggleDificuldade()">${this.gameState.dificuldade}</button>
+                    </div>
+                </div>
+                <button class="game-button" onclick="game.voltarAoMenu()">Voltar</button>
+            </div>
+        `;
+    }
+
+    renderSalaChaves() {
+        const roomElement = document.getElementById('room');
+        roomElement.innerHTML = `
+            <div class="game-content" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                <div style="position: absolute; top: 5%; left: 50%; transform: translateX(-50%); text-align: center; width: 100%;">
+                    <p style="margin: 20px; font-size: 18px; color: #FFD700; text-shadow: 1px 1px #8B4513;">
+                        Um baú misterioso guarda a chave da porta. Três chaves estão sobre a mesa...<br>
+                        Qual delas abrirá o baú?
+                    </p>
+                </div>
+                
+                <!-- Áreas clicáveis para cada chave -->
+                <div class="chave-hotspot" 
+                     onmouseover="game.mostrarDica('A chave de prata está enfeitiçada com magia negra...')"
+                     onmouseout="game.esconderDica()"
+                     onclick="game.escolherChave('prata')"
+                     style="left: 45%; top: 80%;"></div>
+                <div class="chave-hotspot"
+                     onmouseover="game.mostrarDica('A chave enferrujada parece ser uma armadilha mortal...')"
+                     onmouseout="game.esconderDica()"
+                     onclick="game.escolherChave('enferrujada')"
+                     style="left: 51%; top: 80%;"></div>
+                <div class="chave-hotspot"
+                     onmouseover="game.mostrarDica('A chave de ouro brilha com uma aura de esperança...')"
+                     onmouseout="game.esconderDica()"
+                     onclick="game.escolherChave('ouro')"
+                     style="left: 57%; top: 80%;"></div>
+            </div>
+        `;
+    }
+
+    renderFinal() {
+        const roomElement = document.getElementById('room');
+        roomElement.innerHTML = `
+            <div style="position: absolute; width: 100%; height: 100%; display: flex; 
+                        flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <h1 class="room-title" style="margin-bottom: 30px;">Parabéns!</h1>
+                <p style="margin: 20px; font-size: 18px; color: #FFD700; text-shadow: 1px 1px #8B4513;">
+                    Você encontrou a chave correta e completou o desafio!<br>
+                    O baú foi aberto com sucesso!
+                </p>
+            </div>
+        `;
+    }
+
+    iniciarJogo() {
+        if (this.gameState.somLigado) {
+            this.playBackgroundMusic();
+        }
+        this.currentRoom = 'sala';
+        this.renderRoom();
+        this.showMessage('Um baú misterioso guarda a chave da porta. Escolha sabiamente...');
+    }
+
+    abrirOpcoes() {
+        this.currentRoom = 'opcoes';
+        this.renderRoom();
+    }
+
+    voltarAoMenu() {
+        this.currentRoom = 'start';
+        this.renderRoom();
+    }
+
+    sairJogo() {
+        if (confirm('Tem certeza que deseja sair do jogo?')) {
+            window.location.href = 'about:blank';
+            window.close();
+        }
+    }
+
+    toggleSom() {
+        this.gameState.somLigado = !this.gameState.somLigado;
+        console.log('Som ' + (this.gameState.somLigado ? 'ligado' : 'desligado'));
+        if (!this.gameState.somLigado) {
+            this.somVitoria.pause();
+            this.somVitoria.currentTime = 0;
+            this.musicaFundo.pause();
+        } else {
+            this.playBackgroundMusic();
+        }
+        this.renderRoom();
+        this.showMessage(`Som ${this.gameState.somLigado ? 'ligado' : 'desligado'}!`, 1500);
+    }
+
+    toggleDificuldade() {
+        const dificuldades = ['fácil', 'normal', 'difícil'];
+        const currentIndex = dificuldades.indexOf(this.gameState.dificuldade);
+        this.gameState.dificuldade = dificuldades[(currentIndex + 1) % dificuldades.length];
+        this.renderRoom();
+        this.showMessage(`Dificuldade alterada para ${this.gameState.dificuldade}!`, 1500);
+    }
+
+   escolherChave(chave) {
+    this.esconderDica();
+    this.gameState.chaveEscolhida = chave;
+    if (chave === 'ouro') {
+        if (this.gameState.somLigado) {
+            const volumeOriginal = this.musicaFundo.volume;
+            this.musicaFundo.volume = 0.2;
+            this.somVitoria.currentTime = 0;
+            const playPromise = this.somVitoria.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    setTimeout(() => {
+                        this.musicaFundo.volume = volumeOriginal;
+                    }, 2000);
+                }).catch(() => {
+                    this.musicaFundo.volume = volumeOriginal;
+                });
+            }
+        }
+        this.currentRoom = 'final';
+        this.renderRoom();
+        this.showMessage('Parabéns! A chave de ouro era a resposta correta!');
+
+        // Adiciona a classe fade-out no body para começar a animação
+        document.body.classList.add('fade-out');
+
+        // Depois de 1 segundo (duração da animação), redireciona para a próxima sala
+        setTimeout(() => {
+            window.location.href = 'sala3.html';
+        }, 1000);
+
+    } else if (chave === 'prata') {
+        this.showMessage('A chave de prata estava enfeitiçada! Tente novamente...');
+    } else {
+        this.showMessage('A chave enferrujada era uma armadilha! Tente novamente...');
+    }
+}
+
+
+
+    mostrarDica(dica) {
+        const dicaElement = document.getElementById('dica');
+        if (dicaElement) {
+            dicaElement.textContent = dica;
+            dicaElement.classList.add('visible');
+        }
+    }
+
+    esconderDica() {
+        const dicaElement = document.getElementById('dica');
+        if (dicaElement) {
+            dicaElement.classList.remove('visible');
+        }
+    }
+
+    reiniciarJogo() {
+        this.gameState = {
+            chaveEscolhida: '',
+            desafiosCompletos: 0,
+            somLigado: this.gameState.somLigado,
+            dificuldade: this.gameState.dificuldade
+        };
+        this.currentRoom = 'sala';
+        this.renderRoom();
+    }
+
+    showMessage(message, duration = null) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.textContent = message;
+        document.body.appendChild(messageElement);
+
+        setTimeout(() => {
+            messageElement.remove();
+        }, duration || 3000);
+    }
+
+    playBackgroundMusic() {
+        if (this.gameState.somLigado) {
+            const playPromise = this.musicaFundo.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.error('Erro ao reproduzir música de fundo:', error);
+                });
+            }
+        }
+    }
+}
+
+const game = new EscapeRoom();
+
+
+  // Função para tocar ou pausar a música e alternar o ícone de som
+function tocarSom() {
+    var audio = document.getElementById("myAudio"); //a musica em mp3
+    var icone = document.getElementById("iconeSom"); //a imagem do icone de som
+    // Obtém o elemento de áudio pelo ID
+
+    // Verifica se o áudio está pausado
+    if (audio.paused) {
+        audio.play(); // Toca a música
+        icone.src = "imagens/icone_som.png"; // Altera o ícone para som ligado
+    } else {
+        audio.pause(); // Pausa a música
+        icone.src = "imagens/icone_semsom.png"; // Altera o ícone para som desligado
+    }
+}
+
+const openModalButton = document.querySelector("#open-modal");
+    const closeModalButton = document.querySelector("#close-modal");
+    const modal = document.querySelector("#modal");
+    const fade = document.querySelector("#fade");
+    let map = 0;
+
+    const mensagens = {
+      2: "2. Preste atenção nos detalhes cintilantes: nem tudo que reluz é confiável, mas às vezes o brilho mais puro revela o segredo.",
+      
+    };
+
+    const toggleModal = () => {
+      modal.classList.toggle("show");
+      fade.classList.toggle("show");
+      const lampadaImg = document.querySelector("#open-modal");
+      lampadaImg.src = modal.classList.contains("show")
+        ? "./imagens/lampada1.png"
+        : "./imagens/lampada2.png";
+    };
+
+    const atualizarMapa = () => {
+  // só define a mensagem 2 sempre
+  document.querySelector(".modal-text").innerHTML = mensagens[2];
+};
+
+
+    openModalButton.addEventListener("click", () => {
+      atualizarMapa();
+      toggleModal();
+    });
+
+    [closeModalButton, fade].forEach((el) => {
+  el.addEventListener("click", () => toggleModal());
+});
+
+    </script>
+</body>
+</html> 
