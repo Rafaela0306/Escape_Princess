@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Princess</title>
+  <style>
+    html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+#mapa {
+  width: 1920px;
+  height: 1080px;
+  background-image: url(imagens/mapa1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+#princesa {
+  position: absolute;
+  top: 855px; /* subiu só 5px */
+  left: 810px;
+  width: 65px;
+  height: auto;
+  z-index: 5;
+}
+
+.parede {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.porta {
+  position: absolute;
+  top: 900px;
+  left: 45px;
+  width: 70px;
+  height: 120px;
+  cursor: pointer;
+  z-index: 4;
+}
+
+/* Estilo do ícone de som */
+.som {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  width: 100px;
+  height: auto;
+}
+  </style>
+</head>
+<body>
+  <div id="mapa">
+    <img id="princesa" src="imagens/princesa_paradadireita.png" alt="princesa" />
+    <div class="parede" style="top: 855px; left: -100px; width: 1920px; height: 50px;"></div> <!-- chão um pouco mais baixo -->
+    <div class="porta" data-destino="sala1.html"></div>
+  </div>
+
+  <div> 
+        <img id="iconeSom" src="imagens/icone_som.png" alt="som" class="som" onclick="tocarSom()">
+    </div>
+     <!--Tag DIV para inserir uma imagem que ao ter interação é ligada a uma função no java script--> 
+
+    <!--Tag AUDIO para puxar um arquivo de musica em mp3 --> 
+    <audio id="myAudio">
+        <source src="musica.mp3" type="audio/mpeg"> <!-- Fonte do áudio -->
+       Seu navegador não suporta áudio.   <!-- Mensagem caso não suporte -->
+    </audio>
+
+  <script>
+    const princesa = document.getElementById("princesa");
+    const porta = document.querySelector(".porta");
+
+    let posX = 810;
+    let posY = 855; // chão ajustado
+    let velocidadeX = 0;
+    let velocidadeY = 0;
+    const gravidade = 1;
+    const puloForca = -18;
+    const velocidadeMovimento = 6;
+    const chaoY = 855; // chão ajustado
+    let ultimaDirecao = "direita";
+    let noChao = true;
+
+    const teclas = {
+      esquerda: false,
+      direita: false
+    };
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") teclas.esquerda = true;
+      if (e.key === "ArrowRight") teclas.direita = true;
+      if (e.key === " " && noChao) {
+        velocidadeY = puloForca;
+        noChao = false;
+      }
+    });
+
+    document.addEventListener("keyup", function (e) {
+      if (e.key === "ArrowLeft") teclas.esquerda = false;
+      if (e.key === "ArrowRight") teclas.direita = false;
+    });
+
+    function atualizarPosicao() {
+      if (teclas.esquerda) {
+        posX -= velocidadeMovimento;
+        princesa.style.transform = "scaleX(-1)";
+        princesa.src = "imagens/princesa_direita.png";
+        ultimaDirecao = "esquerda";
+      }
+
+      if (teclas.direita) {
+        posX += velocidadeMovimento;
+        princesa.style.transform = "scaleX(1)";
+        princesa.src = "imagens/princesa_direita.png";
+        ultimaDirecao = "direita";
+      }
+
+      // Gravidade
+      velocidadeY += gravidade;
+      posY += velocidadeY;
+
+      // Colisão com o chão
+      if (posY >= chaoY) {
+        posY = chaoY;
+        velocidadeY = 0;
+        noChao = true;
+      }
+
+      // Imagem parada
+      if (!teclas.esquerda && !teclas.direita && noChao) {
+        princesa.src = ultimaDirecao === "esquerda"
+          ? "imagens/princesa_paradaesquerda.png"
+          : "imagens/princesa_paradadireita.png";
+      }
+
+      princesa.style.left = posX + "px";
+      princesa.style.top = posY + "px";
+
+      checarColisao();
+
+      requestAnimationFrame(atualizarPosicao);
+    }
+
+    function getRect(element) {
+      return element.getBoundingClientRect();
+    }
+
+    function checarColisao() {
+      const princesaRect = getRect(princesa);
+      const portaRect = getRect(porta);
+
+      const colisao =
+        !(princesaRect.right < portaRect.left ||
+          princesaRect.left > portaRect.right ||
+          princesaRect.bottom < portaRect.top ||
+          princesaRect.top > portaRect.bottom);
+
+      if (colisao) {
+        const destino = porta.getAttribute("data-destino");
+        const fadeLayer = document.createElement("div");
+        fadeLayer.classList.add("fade-in");
+        fadeLayer.style.position = "fixed";
+        fadeLayer.style.top = 0;
+        fadeLayer.style.left = 0;
+        fadeLayer.style.width = "100%";
+        fadeLayer.style.height = "100%";
+        fadeLayer.style.backgroundColor = "black";
+        fadeLayer.style.zIndex = 99;
+        document.body.appendChild(fadeLayer);
+
+        setTimeout(() => {
+          window.location.href = destino;
+        }, 2000);
+      }
+    }
+
+    atualizarPosicao();
+
+
+     // Função para tocar ou pausar a música e alternar o ícone de som
+function tocarSom() {
+    var audio = document.getElementById("myAudio"); //a musica em mp3
+    var icone = document.getElementById("iconeSom"); //a imagem do icone de som
+    // Obtém o elemento de áudio pelo ID
+
+    // Verifica se o áudio está pausado
+    if (audio.paused) {
+        audio.play(); // Toca a música
+        icone.src = "imagens/icone_som.png"; // Altera o ícone para som ligado
+    } else {
+        audio.pause(); // Pausa a música
+        icone.src = "imagens/icone_semsom.png"; // Altera o ícone para som desligado
+    }
+}
+
+  </script>
+</body>
+</html>
