@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Desafio 3 - O Caminho da Verdade</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    #viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #room {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300vw; /* 3 telas de largura */
+      height: 100vh;
+      background-image: url(imagens/mapa678.png);
+      /* MUDANÇA CRÍTICA: Força o fundo a esticar junto com o contêiner */
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      transform: translateX(0px);
+    }
+
+    #princesa {
+      position: absolute;
+      /* O tamanho da princesa também será em porcentagem para escalar com a tela */
+      width: 1.12%; /* 65px / 5760px (largura do mundo) */
+      height: auto;
+      /* Posição inicial será definida pelo JavaScript */
+      z-index: 10;
+      user-select: none;
+    }
+    
+    .plataforma {
+      position: absolute;
+      z-index: 4;
+      /* background-color: rgba(255, 0, 0, 0.3); */
+    }
+
+    /* Plataformas posicionadas com porcentagens. Calculado com base em um mundo de 5760x1080 */
+    #degrau-1 {
+      left: 5.79%;      /* 334px / 5760px */
+      top: 78.24%;       /* 845px / 1080px */
+      width: 112.8%;     /* 6500px / 5760px - Largura exagerada para garantir a cobertura */
+      height: 4.63%;     /* 50px / 1080px */
+    }
+    #degrau-2 {
+      left: 7.9%;       /* 455px / 5760px */
+      top: 58.33%;      /* 630px / 1080px */
+      width: 81.6%;      /* 4700px / 5760px */
+      height: 4.63%;     /* 50px / 1080px */
+    }
+    #degrau-3 {
+      left: 9.02%;      /* 520px / 5760px */
+      top: 38.42%;      /* 415px / 1080px */
+      width: 60.76%;     /* 3500px / 5760px */
+      height: 4.63%;     /* 50px / 1080px */
+    }
+
+    /* Mantemos o estilo dos labels e do caminho para o texto */
+    .caminho {
+      position: absolute;
+      width: 8%;
+      height: 20%;
+      z-index: 5;
+      pointer-events: none; /* Impede que os labels interfiram no clique */
+    }
+    .label {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    #mensagem {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 12px 24px;
+      font-size: 1.2em;
+      border-radius: 10px;
+      display: none;
+      z-index: 20;
+    }
+
+    .game-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .game-content > div {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      pointer-events: auto;
+    }
+
+    .game-content p {
+      margin: 20px;
+      font-size: 18px;
+      color: #FFD700;
+      text-shadow: 1px 1px 2px #8B4513;
+      background: rgba(0,0,0,0.6);
+      padding: 15px;
+      border-radius: 12px;
+      user-select: none;
+    }
+    /* Estilo do ícone de som */
+    .som {
+        position: absolute; /* Fixa na tela */
+        top: 20px; /* Distância do topo */
+        right: 20px; /* Distância da direita */
+        cursor: pointer; /* Muda o cursor ao passar sobre */
+        width: 100px; /* Define a largura do ícone */
+        height: auto; /* Mantém a proporção da imagem */
+    }
+
+    .lampada1 {
+      margin-top: 12vh;
+      width: 100px;
+      height: auto;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 20;
+      cursor: pointer;
+      opacity: 0.9;
+    }
+
+    #modal, #fade {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #modal.show, #fade.show {
+      display: block;
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      max-width: 90%;
+      min-height: 300px;
+      background-color: #ffd900;
+      border: 0.5rem solid rgb(255, 162, 0);
+      padding: 1.2rem;
+      border-radius: 2rem;
+      z-index: 10;
+      transition: 0.5s;
+    }
+
+    #fade {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9;
+      transition: 0.5s;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #625904;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .modal-text {
+      font-size: 5vh;
+      font-family: cursive;
+    }
+
+    #close-modal {
+      padding: 5px 10px;
+      border: 2px solid gold;
+      background-color: hsl(51, 100%, 77%);
+      border-radius: 30%;
+      font-weight:bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport">
+    <div id="room">
+      <img id="princesa" src="imagens/princesa_paradadireita.png" alt="princesa" />
+
+      <div id="degrau-1" class="plataforma"></div>
+      
+      <div id="degrau-2" class="plataforma"></div>
+
+      <div id="degrau-3" class="plataforma"></div>
+
+      <div class="caminho" style="left: 5%; top: 50%;">
+        <span class="label">Caminho Iluminado</span>
+      </div>
+      <div class="caminho" style="left: 7%; top: 63%;">
+        <span class="label">Caminho Misterioso</span>
+      </div>
+      <div class="caminho" style="left: 6.5%; top: 82%;">
+        <span class="label">Caminho escuro</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-content">
+    <div>
+      <p>
+        A porta está fechada...<br>
+        Três caminhos aparecem na placa:<br>
+        Iluminado, Escuro e Misterioso.<br>
+        Qual deles você escolherá?
+      </p>
+    </div>
+  </div>
+
+  <div id="mensagem"></div>
+
+
+    <div> 
+        <img id="iconeSom" src="imagens/icone_som.png" alt="som" class="som" onclick="tocarSom()">
+    </div>
+     <!--Tag DIV para inserir uma imagem que ao ter interação é ligada a uma função no java script--> 
+
+    <!--Tag AUDIO para puxar um arquivo de musica em mp3 --> 
+    <audio id="myAudio">
+        <source src="musica.mp3" type="audio/mpeg"> <!-- Fonte do áudio -->
+       Seu navegador não suporta áudio.   <!-- Mensagem caso não suporte -->
+    </audio>
+     <img id="open-modal" src="./imagens/lampada2.png" alt="dica" class="som lampada1" />
+
+  <div id="fade"></div>
+  <div id="modal">
+    <div class="modal-header">
+      <p style="font-weight: bold;">Dica</p>
+      <button id="close-modal">x</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-text"></p>
+    </div>
+  </div>
+
+  <script>
+    // --- CONFIGURAÇÃO DO MUNDO DO JOGO ---
+    const MUNDO_LARGURA = 5760;
+    const MUNDO_ALTURA = 1080;
+
+    // --- GEOMETRIA DAS PLATAFORMAS ---
+    const GEOMETRIA_PLATAFORMAS = [
+      { id: 'degrau-1', left: 5.79, top: 78.24, width: 112.8, height: 4.63 },
+      { id: 'degrau-2', left: 7.9,  top: 58.33, width: 81.6,  height: 4.63 },
+      { id: 'degrau-3', left: 9.02, top: 38.42, width: 60.76,  height: 4.63 }
+    ];
+
+    // --- ELEMENTOS DO JOGO ---
+    const viewport = document.getElementById('viewport');
+    const room = document.getElementById('room');
+    const princesa = document.getElementById('princesa');
+    const msg = document.getElementById('mensagem');
+    
+    // --- ESTADO DO JOGO ---
+    // MUDANÇA 1: Velocidade de movimento diminuída
+    const velocidadeMovimento = 10; 
+    let velocidadeY = 0;
+    const gravidade = 0.8;
+    const puloForca = -20;
+    let noChao = true;
+    let ultimaDirecao = "direita";
+    const teclas = { esquerda: false, direita: false };
+
+    // Posição inicial calculada automaticamente
+    const degrau1_geometria = GEOMETRIA_PLATAFORMAS[0];
+    let posX = (degrau1_geometria.left / 100 * MUNDO_LARGURA) + 100; 
+    let posY = MUNDO_ALTURA - (degrau1_geometria.top / 100 * MUNDO_ALTURA); 
+
+    // MUDANÇA 2 (Etapa A): Definindo o limite da parede invisível
+    const LIMITE_ESQUERDO_MAPA = degrau1_geometria.left / 100 * MUNDO_LARGURA;
+
+
+    // --- LÓGICA DO JOGO ---
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") teclas.esquerda = true;
+        if (e.key === "ArrowRight") teclas.direita = true;
+        if ((e.key === " " || e.key === "ArrowUp") && noChao) {
+            velocidadeY = puloForca;
+            noChao = false;
+        }
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (e.key === "ArrowLeft") teclas.esquerda = false;
+        if (e.key === "ArrowRight") teclas.direita = false;
+    });
+
+    function atualizarCamera() {
+        const proporcaoMundoTela = room.offsetWidth / MUNDO_LARGURA;
+        let targetCameraPosX = (viewport.offsetWidth / 2) - (posX * proporcaoMundoTela);
+        
+        const maxShift = room.offsetWidth - viewport.offsetWidth;
+        targetCameraPosX = Math.max(-maxShift, Math.min(0, targetCameraPosX));
+
+        room.style.transform = `translateX(${targetCameraPosX}px)`;
+    }
+
+    function atualizarPosicaoPrincesa() {
+        // Movimento Horizontal
+        if (teclas.esquerda) {
+            posX -= velocidadeMovimento;
+            princesa.style.transform = "scaleX(-1)";
+        }
+        if (teclas.direita) {
+            posX += velocidadeMovimento;
+            princesa.style.transform = "scaleX(1)";
+        }
+
+        // Física e Colisão Vertical
+        const posAnteriorY = posY;
+        velocidadeY += gravidade;
+        posY -= velocidadeY;
+
+        let aterrisou = false;
+
+        const princesaLargura = 65;
+
+        GEOMETRIA_PLATAFORMAS.forEach(plataforma => {
+            const platLeft = plataforma.left / 100 * MUNDO_LARGURA;
+            const platTop = plataforma.top / 100 * MUNDO_ALTURA;
+            const platWidth = plataforma.width / 100 * MUNDO_LARGURA;
+            const platTopSurfaceY = MUNDO_ALTURA - platTop;
+
+            if (
+                velocidadeY > 0 &&
+                posX + princesaLargura > platLeft &&
+                posX < platLeft + platWidth &&
+                posAnteriorY >= platTopSurfaceY &&
+                posY <= platTopSurfaceY
+            ) {
+                velocidadeY = 0;
+                posY = platTopSurfaceY;
+                aterrisou = true;
+            }
+        });
+
+        noChao = aterrisou;
+
+        // Limites do mundo
+        // MUDANÇA 2 (Etapa B): Aplicando a parede invisível
+        if (posX < LIMITE_ESQUERDO_MAPA) {
+            posX = LIMITE_ESQUERDO_MAPA;
+        }
+        if (posX > MUNDO_LARGURA - princesaLargura) {
+            posX = MUNDO_LARGURA - princesaLargura;
+        }
+
+        // Atualiza o estilo da princesa
+        princesa.style.left = (posX / MUNDO_LARGURA) * 100 + '%';
+        princesa.style.bottom = (posY / MUNDO_ALTURA) * 100 + '%';
+
+        // Atualiza a imagem da princesa
+        if (!teclas.esquerda && !teclas.direita && noChao) {
+            princesa.src = `imagens/princesa_parada${ultimaDirecao}.png`;
+        } else if (teclas.esquerda || teclas.direita) {
+            princesa.src = `imagens/princesa_${ultimaDirecao}.png`;
+        }
+    }
+    
+    function loop() {
+        atualizarPosicaoPrincesa();
+        atualizarCamera();
+        requestAnimationFrame(loop);
+    }
+
+    // (O restante do seu código: cliques, mensagens, modal, etc., continua aqui)
+    document.getElementById('degrau-1').onclick = () => mostrarMensagem("Um beco sem saída...");
+    document.getElementById('degrau-2').onclick = () => {
+         mostrarMensagem("Você encontrou o caminho certo, parabéns!");
+         setTimeout(() => window.location.href = 'telafinal.html', 2000);
+     };
+    document.getElementById('degrau-3').onclick = () => mostrarMensagem("Este caminho não leva a lugar nenhum.");
+    function mostrarMensagem(texto) { msg.innerText = texto; msg.style.display = 'block'; setTimeout(() => { msg.style.display = 'none'; }, 3000); }
+    function tocarSom() {
+        var audio = document.getElementById("myAudio");
+        var icone = document.getElementById("iconeSom");
+        if (audio.paused) {
+            audio.play();
+            icone.src = "imagens/icone_som.png";
+        } else {
+            audio.pause();
+            icone.src = "imagens/icone_semsom.png";
+        }
+    }
+    const openModalButton = document.querySelector("#open-modal");
+    const closeModalButton = document.querySelector("#close-modal");
+    const modal = document.querySelector("#modal");
+    const fade = document.querySelector("#fade");
+    const mensagens = {
+        3: "3. Nem sempre a trilha mais clara leva à liberdade; siga o sussurro do desconhecido para encontrar o verdadeiro caminho.",
+    };
+    const toggleModal = () => {
+        modal.classList.toggle("show");
+        fade.classList.toggle("show");
+        const lampadaImg = document.querySelector("#open-modal");
+        lampadaImg.src = modal.classList.contains("show") ?
+            "./imagens/lampada1.png" :
+            "./imagens/lampada2.png";
+    };
+    const atualizarMapa = () => {
+        document.querySelector(".modal-text").innerHTML = mensagens[3];
+    };
+    openModalButton.addEventListener("click", () => {
+        atualizarMapa();
+        toggleModal();
+    });
+    [closeModalButton, fade].forEach((el) => {
+        el.addEventListener("click", () => toggleModal());
+    });
+    
+    loop();
+  </script>
+</body>
+</html>
