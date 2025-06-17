@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fim - Efeito Iris Out</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="script.js"></script>
+</body>
+<script>
+    
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.style.margin = '0';
+document.body.style.overflow = 'hidden';
+document.body.appendChild(canvas);
+
+const img = new Image();
+img.src = "imagens/fim.png";
+
+let start = null;
+const duration = 2000; // 2 segundos
+let width, height;
+
+function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+}
+window.onresize = resize;
+resize();
+
+img.onload = () => {
+    requestAnimationFrame(step);
+};
+
+function step(timestamp) {
+    if (!start) start = timestamp;
+    const elapsed = timestamp - start;
+
+    const progress = Math.min(elapsed / duration, 1);
+    const maxRadius = Math.sqrt(width * width + height * height) / 2;
+    const radius = maxRadius * (1 - progress);
+
+    const imgRatio = img.width / img.height;
+    const canvasRatio = width / height;
+
+    let drawWidth, drawHeight, offsetX, offsetY;
+
+    if (canvasRatio > imgRatio) {
+        drawWidth = width;
+        drawHeight = width / imgRatio;
+        offsetX = 0;
+        offsetY = (height - drawHeight) / 2;
+    } else {
+        drawHeight = height;
+        drawWidth = height * imgRatio;
+        offsetX = (width - drawWidth) / 2;
+        offsetY = 0;
+    }
+
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
+    ctx.rect(width, 0, -width, height);
+    ctx.fillStyle = 'black';
+    ctx.fill();
+    ctx.restore();
+
+    if (progress < 1) {
+        requestAnimationFrame(step);
+    }
+}
+
+</script>
+</html>
