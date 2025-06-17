@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Escape Princess</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            transition: opacity 1.5s ease;
+            opacity: 1;
+        }
+
+        /* Classe para o fade out */
+        .fade-out {
+            opacity: 0;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #room {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background-image: url(imagens/mapa2.png);
+            background-repeat: no-repeat;
+            background-size: 100% 100%; /* DE: cover */
+            background-position: center;
+        }
+
+        .message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            font-weight: bold;
+            max-width: 80%;
+            color: #FFD700;
+            z-index: 1000;
+        }
+        /* Estilo do ícone de som */
+.som {
+    position: absolute; /* Fixa na tela */
+    top: 20px; /* Distância do topo */
+    right: 20px; /* Distância da direita */
+    cursor: pointer; /* Muda o cursor ao passar sobre */
+    width: 100px; /* Define a largura do ícone */
+    height: auto; /* Mantém a proporção da imagem */
+}
+
+        /* Outras regras CSS omitidas para brevidade */
+
+
+        html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+#mapa {
+  width: 1920px;
+  height: 1080px;
+  background-image: url(imagens/mapa1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+#princesa {
+  position: absolute;
+  top: 855px; /* subiu só 5px */
+  left: 810px;
+  width: 65px;
+  height: auto;
+  z-index: 5;
+}
+
+.parede {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.porta {
+  position: absolute;
+  top: 900px;
+  left: 45px;
+  width: 70px;
+  height: 120px;
+  cursor: pointer;
+  z-index: 4;
+}
+
+/* Estilo do ícone de som */
+.som {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  width: 100px;
+  height: auto;
+}
+
+.lampada1 {
+  margin-top: 12vh;
+  width: 100px;
+  height: auto;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 20;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+#modal, #fade {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#modal.show, #fade.show {
+  display: block;
+  opacity: 1;
+  pointer-events: all;
+}
+
+#modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  max-width: 90%;
+  min-height: 300px;
+  background-color: #ffd900;
+  border: 0.5rem solid rgb(255, 162, 0);
+  padding: 1.2rem;
+  border-radius: 2rem;
+  z-index: 10;
+  transition: 0.5s;
+}
+
+#fade {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9;
+  transition: 0.5s;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #625904;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.modal-text {
+  font-size: 5vh;
+  font-family: cursive;
+}
+
+#close-modal {
+  padding: 5px 10px;
+  border: 2px solid gold;
+  background-color: hsl(51, 100%, 77%);
+  border-radius: 30%;
+  font-weight: bold;
+}
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="room"></div>
+    </div>
+
+    <div> 
+        <img id="iconeSom" src="imagens/icone_som.png" alt="som" class="som" onclick="tocarSom()">
+    </div>
+     <!--Tag DIV para inserir uma imagem que ao ter interação é ligada a uma função no java script--> 
+
+    <!--Tag AUDIO para puxar um arquivo de musica em mp3 --> 
+    <audio id="myAudio">
+        <source src="musica.mp3" type="audio/mpeg"> <!-- Fonte do áudio -->
+       Seu navegador não suporta áudio.   <!-- Mensagem caso não suporte -->
+    </audio>
+    
+
+     <img id="open-modal" src="./imagens/lampada2.png" alt="dica" class="som lampada1" />
+
+  <div id="fade"></div>
+  <div id="modal">
+    <div class="modal-header">
+      <p style="font-weight: bold;">Dica</p>
+      <button id="close-modal">x</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-text"></p>
+    </div>
+  </div>
+    <script>
+        // --- CONFIGURAÇÃO DO MUNDO DO JOGO ---
+        const MUNDO_LARGURA = 1920;
+        const MUNDO_ALTURA = 1080;
+
+        // --- GEOMETRIA DOS QUADROS (Fonte da Verdade) ---
+        // Coordenadas em pixels (baseado no seu código original)
+        // Senha correta: 4312
+        const DADOS_QUADROS = [
+            { id: 'quadro-4', numero: '4', x: 1428, y: 155, alturaImg: '60px' },
+            { id: 'quadro-3', numero: '3', x: 587,  y: 165, alturaImg: '50px' },
+            // Converti as posições em % do seu código antigo para pixels para consistência
+            { id: 'quadro-1', numero: '1', x: 1036, y: 920, alturaImg: '45px' }, // 54% de 1920 é 1037, 90% de 1080 é 972
+            { id: 'quadro-2', numero: '2', x: 461,  y: 572, alturaImg: '45px' }  // 24% de 1920 é 461, 53% de 1080 é 572
+        ];
+
+        class EscapeRoom {
+            constructor() {
+                this.sequenciaEscolhida = '';
+                this.inventory = [];
+                this.currentRoom = 'start';
+                this.gameState = {
+                    chaveEscolhida: '',
+                    desafiosCompletos: 0,
+                    somLigado: true,
+                };
+                this.somVitoria = new Audio('./sounds/magical_1.ogg');
+                this.musicaFundo = new Audio('./sounds/No More Magic.mp3');
+                this.somVitoria.volume = 1.0;
+                this.musicaFundo.volume = 0.5;
+                this.musicaFundo.loop = true;
+                this.init();
+            }
+
+            init() {
+                this.renderSalaChaves();
+            }
+
+            // --- FUNÇÃO RENDERIZADORA ATUALIZADA ---
+            renderSalaChaves() {
+                const roomElement = document.getElementById('room');
+                let quadrosHTML = '';
+
+                // Gera o HTML para cada quadro dinamicamente
+                DADOS_QUADROS.forEach(quadro => {
+                    const leftPercent = (quadro.x / MUNDO_LARGURA) * 100;
+                    const topPercent = (quadro.y / MUNDO_ALTURA) * 100;
+                    const imgFile = `./imagens/quadro${quadro.numero}.png`;
+
+                    quadrosHTML += `
+                        <button id="${quadro.id}" 
+                                style="position: absolute; 
+                                    left: ${leftPercent}%; 
+                                    top: ${topPercent}%; 
+                                    border: none; 
+                                    background: transparent;
+                                    padding: 0;"
+                                onclick="game.clicarQuadro('${quadro.numero}')">
+                            <img src="${imgFile}" alt="Quadro ${quadro.numero}" style="height: ${quadro.alturaImg}; display: block;">
+                        </button>
+                    `;
+                });
+
+                // Constrói o HTML final da sala
+                roomElement.innerHTML = `
+                    <p style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; color: #FFD700; text-shadow: 1px 1px #8B4513; text-align: center;">
+                        A porta está trancada com um código... Pelas paredes, quadros com números escondem a dica da sequência correta.<br>
+                        Qual será a senha?
+                    </p>
+                    ${quadrosHTML}
+                `;
+            }
+            
+            showMessage(message, duration = 3000) {
+                // Remove a mensagem antiga se existir
+                const oldMessage = document.querySelector('.message');
+                if(oldMessage) oldMessage.remove();
+
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message';
+                messageElement.textContent = message;
+                document.body.appendChild(messageElement);
+
+                setTimeout(() => {
+                    messageElement.remove();
+                }, duration);
+            }
+
+            clicarQuadro(numero) {
+                this.sequenciaEscolhida += numero;
+                this.showMessage(`Você clicou no quadro ${numero}`);
+
+                if (this.sequenciaEscolhida.length === 4) {
+                    this.verificarSenha(this.sequenciaEscolhida);
+                    this.sequenciaEscolhida = '';
+                }
+            }
+
+            verificarSenha(senha) {
+                const senhaCorreta = '4312';
+                if (senha === senhaCorreta) {
+                    this.showMessage('Parabéns! Você passou pela porta com a sequência correta!', 3000);
+                    setTimeout(() => {
+                        document.body.style.transition = 'opacity 1s ease';
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            window.location.href = 'sala2.html';
+                        }, 1000);
+                    }, 1500);
+                } else {
+                    this.showMessage('Sequência incorreta. Tente novamente...');
+                }
+            }
+        }
+
+        const game = new EscapeRoom();
+
+        // Funções auxiliares (música, modal, etc.)
+        function tocarSom() {
+            var audio = document.getElementById("myAudio");
+            var icone = document.getElementById("iconeSom");
+            if (audio.paused) {
+                audio.play();
+                icone.src = "imagens/icone_som.png";
+            } else {
+                audio.pause();
+                icone.src = "imagens/icone_semsom.png";
+            }
+        }
+
+        const openModalButton = document.querySelector("#open-modal");
+        const closeModalButton = document.querySelector("#close-modal");
+        const modal = document.querySelector("#modal");
+        const fade = document.querySelector("#fade");
+        const mensagens = {
+        1: "1. Talvez o seu lado artístico lhe ajude em momentos como este. Então, olhe com cuidado para os quadros numerados: o quarto sempre precede o terceiro, que então dá lugar ao primeiro e ao segundo.",
+        };
+
+        const toggleModal = () => {
+        modal.classList.toggle("show");
+        fade.classList.toggle("show");
+        const lampadaImg = document.querySelector("#open-modal");
+        lampadaImg.src = modal.classList.contains("show")
+            ? "./imagens/lampada1.png"
+            : "./imagens/lampada2.png";
+        };
+
+        const atualizarMapa = () => {
+        document.querySelector(".modal-text").innerHTML = mensagens[1];
+        };
+
+        openModalButton.addEventListener("click", () => {
+        atualizarMapa();
+        toggleModal();
+        });
+
+        [closeModalButton, fade].forEach((el) => {
+        el.addEventListener("click", () => toggleModal());
+        });
+    </script>
+</body>
+</html>
