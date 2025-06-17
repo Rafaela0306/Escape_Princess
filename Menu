@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Princess</title>
+
+    <style>
+        /* Personalização geral para remover margens e bordas padrão de todos os elementos */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Mantém a largura e altura incluindo padding e border */
+}
+
+/* Configurações do corpo todo da página */
+body {
+    background-image: url('./imagens/fundo.PNG'); /* Imagem de fundo */
+    background-repeat: no-repeat; /* Não repete a imagem */
+    background-size: cover; /*O fundo Cobre toda a tela */
+    background-position: center; /* Centraliza a imagem */
+    width: 100vw;  /* Ocupa 100% da largura da tela */
+    height: 100vh;  /* Ocupa 100% da altura da tela */
+    overflow: hidden;  /* Remove barras de rolagem */
+    display: flex;   /* Ativa o Flexbox */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center;  /* Centraliza verticalmente */
+}
+
+/* Container que engloba todo o conteúdo */
+.conteiner {
+    height: 100%; /* Ocupa toda a altura da tela */
+    width: 100%; /* Ocupa toda a largura da tela */
+    display: flex; /* Ativa Flexbox (sistema de organização dos elementos na tela) */
+    flex-direction: column; /* Organiza os filhos(elementos dentro do container) em coluna */
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
+    position: relative; /* Permite posicionamento absoluto dos elementos filhos */
+}
+
+
+/* Personalização da Imagem do Titulo do Jogo Escape Princess */
+.titulo {
+    position: absolute;
+    top: 0px; /* Fixa no topo da tela */
+}
+
+
+/* Container dos botões Iniciar e Sair */
+.botoes {
+    display: flex; /* Ativa Flexbox */
+    flex-direction: column; /* Organiza os botões na vertical */
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
+    width: 50%; /* Ocupa 50% da largura do container */
+    max-width: 280px; /* Limita o tamanho máximo */
+    position: absolute; /* Permite fixar na tela */
+    bottom: 2vh; /* Posiciona próximo à parte inferior da tela */
+}
+
+/* Estilo dos botões */
+.botao {
+    display: block; /* Faz a imagem ocupar toda a linha */
+    width: 100%; /* Faz a imagem do botão ocupar toda a largura do container */
+    
+}
+
+.botao img {
+    width: 100%; 
+    height: auto; 
+    cursor: pointer;
+    display: block; 
+}
+
+/* Estilo do ícone de som */
+.som {
+    position: absolute; /* Fixa na tela */
+    top: 20px; /* Distância do topo */
+    right: 20px; /* Distância da direita */
+    cursor: pointer; /* Muda o cursor ao passar sobre */
+    width: 100px; /* Define a largura do ícone */
+    height: auto; /* Mantém a proporção da imagem */
+}
+#modal,
+    #fade {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #modal.show,
+    #fade.show {
+      display: block;
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      max-width: 90%;
+      min-height: 300px;
+      background-color: #ffd900;
+      border: 0.5rem solid rgb(255, 162, 0);
+      padding: 1.2rem;
+      border-radius: 2rem;
+      z-index: 10;
+      transition: 0.5s;
+    }
+
+    #fade {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9;
+      transition: 0.5s;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #625904;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .modal-text {
+      font-size: 3vh;
+      font-family: cursive;
+    }
+
+    #close-modal {
+      padding: 5px 10px;
+      border: 2px solid gold;
+      background-color: hsl(51, 100%, 77%);
+      border-radius: 30%;
+      font-weight: bold;
+    }
+
+    </style>
+    
+</head>
+<body>
+    <div class="conteiner"> <!-- Container principal que agrupa todo o conteúdo -->
+        <img src="imagens/titulo.png" alt="princesa" class="titulo">
+        <!-- Adiciona uma Imagem do Titulo do jogo -->
+
+    <!-- Div que agrupa os botões -->
+        <div class="botoes">
+        <a href="mapa1.html">
+        <img src="imagens/botao_iniciar.png" alt="Iniciar" class="botao">
+        </a>
+
+ <!--Tag A é utilizada para criar um link na imagem que nesse caso leva ao inicio do jogo --> 
+     
+          <!-- Botão de opções corrigido -->
+<div id="open-modal" class="botao" style="cursor: pointer;">
+    <img src="imagens/botao_historia.png" alt="Historia" style="width: 100%; height: auto;">
+</div>
+
+        
+
+        <!--Tag A é utilizada para criar um link na imagem que nesse caso leva ao inicio do jogo --> 
+            <a href="telainicial.html">
+                <img  src="imagens/botao_sair.png" alt="Sair" class="botao">
+        </a>
+        <!--Tag A é utilizada para criar um link na imagem que nesse caso leva a sair do jogo, ou seja voltar a tela inicial --> 
+    </div>
+
+    <div> 
+        <img id="iconeSom" src="imagens/icone_som.png" alt="som" class="som" onclick="tocarSom()">
+    </div>
+     <!--Tag DIV para inserir uma imagem que ao ter interação é ligada a uma função no java script--> 
+
+    <!--Tag AUDIO para puxar um arquivo de musica em mp3 --> 
+    <audio id="myAudio">
+        <source src="musica.mp3" type="audio/mpeg"> <!-- Fonte do áudio -->
+       Seu navegador não suporta áudio.   <!-- Mensagem caso não suporte -->
+    </audio>
+    </div>
+
+     <!-- Modal -->
+  <div id="fade"></div>
+  <div id="modal">
+    <div class="modal-header">
+      <p style="font-weight: bold;">HISTORIA</p>
+      <button id="close-modal">x</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-text"></p>
+    </div>
+  </div> 
+
+ </body>
+ <script>
+    // Função para tocar ou pausar a música e alternar o ícone de som
+function tocarSom() {
+    var audio = document.getElementById("myAudio"); //a musica em mp3
+    var icone = document.getElementById("iconeSom"); //a imagem do icone de som
+    // Obtém o elemento de áudio pelo ID
+
+    // Verifica se o áudio está pausado
+    if (audio.paused) {
+        audio.play(); // Toca a música
+        icone.src = "imagens/icone_som.png"; // Altera o ícone para som ligado
+    } else {
+        audio.pause(); // Pausa a música
+        icone.src = "imagens/icone_semsom.png"; // Altera o ícone para som desligado
+    }
+}
+
+ const openModalButton = document.querySelector("#open-modal");
+    const closeModalButton = document.querySelector("#close-modal");
+    const modal = document.querySelector("#modal");
+    const fade = document.querySelector("#fade");
+    let map = 1; // ou o valor inicial que quiser
+
+function atualizarMapa() {
+  const modalText = document.querySelector('.modal-text');
+  modalText.textContent = mensagens[map] || "Nenhuma dica disponível.";
+  // Atualiza o valor de map se quiser mudar a mensagem na próxima vez que abrir
+  map++;
+  if (map > Object.keys(mensagens).length) {
+    map = 1; // volta para a primeira mensagem
+  }
+}
+
+
+    const mensagens = {
+       1: "A princesa, herdeira de um reino próspero, ousou desafiar o mago sombrio. O mago lançou um feitiço sobre o castelo, por causa do desafio da princesa, aprisionando-a em suas muralhas sombrias. Apenas uma mente astuta poderá decifrar os mistérios que a mantém cativa. Você aceitará o desafio de libertá-la e devolver a esperança ao reino? ",
+     
+    };
+
+    const toggleModal = () => {
+      modal.classList.toggle("show");
+      fade.classList.toggle("show");
+      //const lampadaImg = document.querySelector("#open-modal");
+      //lampadaImg.src = modal.classList.contains("show")
+        //? "./imagens/lampada1.png"
+        //: "./imagens/lampada2.png";
+    };
+
+    
+
+    openModalButton.addEventListener("click", () => {
+        atualizarMapa();
+  toggleModal();
+});
+
+
+    [closeModalButton, fade].forEach(el =>
+      el.addEventListener("click", () => toggleModal())
+    );
+
+    
+
+ </script>
+</html>
